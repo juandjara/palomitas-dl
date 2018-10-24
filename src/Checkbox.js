@@ -44,8 +44,9 @@ const Styled = styled.div`
     &:after {
       content: '✔';
       position: absolute;
-      top: -1px; left: 2px;
-      font-size: 16px;
+      top: -10px;
+      left: 2px;
+      font-size: 28px;
       color: #09ad7e;
       transition: all .2s;
     }
