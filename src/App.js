@@ -146,6 +146,14 @@ class App extends Component {
   }
 
   toggleFileSelection(torrent, file, selected) {
+    const event = selected ? 'select' : 'deselect';
+    const index = torrent.files.indexOf(file);
+    this.socket.emit(event, torrent.infoHash, index);
+  }
+
+  togglePlayPause(torrent) {
+    const event = torrent.stats.paused ? 'resume' : 'pause';
+    this.socket.emit(event, torrent.infoHash);
   }
 
   render() {
@@ -209,8 +217,8 @@ class App extends Component {
                 ))}
               </ul>
               <Stats>
-                <button>
-                  <Icon size={20} icon="pause" />
+                <button onClick={() => this.togglePlayPause(torrent)}>
+                  <Icon size={20} icon={torrent.stats.paused ? 'play_arrow' : 'pause'} />
                 </button>
                 <div className="down">
                   <Icon size={20} icon="arrow_downward" />
