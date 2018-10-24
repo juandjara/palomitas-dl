@@ -56,8 +56,31 @@ class App extends Component {
     });
   }
 
+  addTorrent(ev) {
+    ev.preventDefault();
+    fetch(`${downloader}/torrents`, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ link: this.state.magnet })
+    }).then(() => {
+      this.setState({magnet: ''})
+    })
+  }
+
   removeTorrent(hash) {
-    // TODO: call remove endpoint in API
+    const safe = window.confirm('¿Esta seguro de que desea borrar este torrent?');
+    if (!safe) {
+      return;
+    }
+    fetch(
+      `${downloader}/torrents/${hash}`,
+      {method: 'DELETE'}
+    ).then(() => {
+      this.cleanTorrent(hash);
+    })    
+  }
+
+  cleanTorrent(hash) {
     this.setState(prev => ({
       torrents: prev.torrents.filter(storedHash => storedHash !== hash)
     }));
@@ -72,10 +95,10 @@ class App extends Component {
     this.socket.on('ready', (hash, stats) => this.fetchSingleTorrent(hash, stats));
     this.socket.on('stats', (hash, stats) => this.updateTorrent(hash, {stats}));
     this.socket.on('download', (hash, progress) => this.updateTorrent(hash, {progress}));
-    this.socket.on('interested', hash => this.updateTorrent(hash, {interested: true}));
-    this.socket.on('uninterested', hash => this.updateTorrent(hash, {interested: false}));
+    this.socket.on('interested', (hash, progress) => this.updateTorrent(hash, {progress, interested: true}));
+    this.socket.on('uninterested', (hash, progress) => this.updateTorrent(hash, {progress, interested: false}));
     this.socket.on('selection', (hash, selection) => this.updateSelection(hash, selection));
-    this.socket.on('destroyed', hash => this.removeTorrent(hash));
+    this.socket.on('destroyed', hash => this.cleanTorrent(hash));
   }
 
   isTorrentInState(hash) {
@@ -180,7 +203,7 @@ class App extends Component {
                 onChange={ev => this.setState({magnet: ev.target.value})}
                 placeholder="Introduzca el magnet link aqui" />
             </div>
-            <button>
+            <button onClick={ev => this.addTorrent(ev)}>
               <Icon icon="file_download" />
               Descargar
             </button>
@@ -193,7 +216,7 @@ class App extends Component {
               <header>
                 <Icon icon={this.getTorrentIcon(torrent)} />
                 <p>{torrent.name}</p>
-                <button>
+                <button onClick={() => this.removeTorrent(torrent.infoHash)}>
                   <Icon size={16} icon="close" />
                 </button>
               </header>
