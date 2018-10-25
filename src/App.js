@@ -51,7 +51,7 @@ class App extends Component {
         torrents: torrents.map(torrent => {
           torrent.stats = {};
           return torrent;
-        })
+        }).sort((a, b) => b.addDate - a.addDate)
       }, () => this.setupSocket());
     });
   }
@@ -82,7 +82,7 @@ class App extends Component {
 
   cleanTorrent(hash) {
     this.setState(prev => ({
-      torrents: prev.torrents.filter(storedHash => storedHash !== hash)
+      torrents: prev.torrents.filter(torrent => torrent.infoHash !== hash)
     }));
   }
 
@@ -113,7 +113,7 @@ class App extends Component {
         this.updateTorrent(hash, torrent)
       } else {
         this.setState(prev => ({
-          torrents: prev.torrents.concat({...torrent, stats})
+          torrents: prev.torrents.concat({...torrent, stats}).sort((a, b) => b.addDate - a.addDate)
         }))
       }
     })
@@ -223,7 +223,7 @@ class App extends Component {
               <p className="date">Añadido {this.getTorrentDate(torrent)}</p>
               <ProgressBar className="progress" singleChunk={torrent.progress.length === 1}>
                 {torrent.progress.map((percent, index) => (
-                  <div key={percent} style={{width: `${percent}%`}} 
+                  <div key={`${index}_${percent}`} style={{width: `${percent}%`}} 
                     className={index % 2 === 0 ? 'fill' : 'space'}></div>
                 ))}
               </ProgressBar>

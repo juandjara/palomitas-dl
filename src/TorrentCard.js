@@ -46,7 +46,7 @@ const TorrentCard = styled.div`
       color: #27ae60;
     }
     .progress .fill {
-      animation: barberpole 10s linear infinite;
+      animation: barberpole 8s linear infinite;
     }
   }
   &.connecting {

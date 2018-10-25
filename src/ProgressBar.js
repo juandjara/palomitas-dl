@@ -8,6 +8,7 @@ const ProgressBar = styled.div`
   div {
     height: 100%;
     background-color: #eee;
+    min-width: 10px;
     &.fill {
       background-image: repeating-linear-gradient(
         135deg,
