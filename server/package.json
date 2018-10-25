@@ -1,0 +1,33 @@
+{
+  "name": "palomitas-dl-es6",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "debug": "node --inspect index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.4",
+    "fluent-ffmpeg": "^2.1.2",
+    "helmet": "^3.14.0",
+    "just-throttle": "^1.1.0",
+    "morgan": "^1.9.1",
+    "parse-torrent": "^6.1.2",
+    "pump": "^3.0.0",
+    "socket.io": "^2.1.1",
+    "torrent-stream": "^1.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.7.0",
+    "nodemon": "^1.18.4"
+  }
+}
