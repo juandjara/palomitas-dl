@@ -2,7 +2,7 @@ const { Router } = require('express');
 const {serializeTorrent, parseStats} = require('./utils');
 const store = require('./store');
 const pump = require('pump');
-const transformer = require('./transformer');
+const transformers = require('./transformers');
 
 function torrentMiddleware(req, res, next) {
   const hash = req.params.infoHash;
@@ -86,10 +86,15 @@ router.get('/torrents/:infoHash/files/:path([^"]+)', torrentMiddleware, (req, re
     return res.status(404).json({error: 'file not found'});
   }
 
-  const transform = req.query.transform;
-  if (transform && typeof transformer[transform] === 'function') {
-    transformer[transform](req, res, torrent, file);
-    return;
+  const transformKey = req.query.transform;
+  const transformFn = transformers[transformKey];
+  if (typeof transformFn === 'function') {
+    return transformFn(req, res, torrent, file);
+  }
+
+  if (!torrent.amInterested) {
+    console.log('[torrent api routes] redirecting to NGINX storage');  
+    return res.redirect(`/storage/${req.params.infoHash}/${req.params.path}`);
   }
   
   res.type(file.name);
