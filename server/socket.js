@@ -72,7 +72,7 @@ module.exports = {
       return torrent.selection.some(s => s.from <= start && s.to >= end);
     });
     this.socketServer.sockets.emit('selection', torrent.infoHash, selection);
-  }),
+  }, 1000),
 
   trackTorrentProgress(torrent) {
     this.sendNotificationToTelegram(torrent);
