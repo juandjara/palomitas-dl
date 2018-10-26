@@ -7,6 +7,7 @@ services:
       - 8000:80
     volumes:
       - ./www:/usr/src/app
+      - ./storage/torrents:/usr/share/nginx/html/storage
     links:
       - api
   api:

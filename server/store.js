@@ -110,7 +110,7 @@ class Store extends EventEmitter {
   }
 }
 
-const storageFilePath = path.join(storagePath, '.palomitas.json');
+const storageFilePath = path.join(storagePath, 'torrentlist.json');
 const instance = new Store({storageFilePath});
 
 instance.init();
