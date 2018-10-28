@@ -16,7 +16,7 @@ const AppStyle = styled.div`
   max-width: 768px;
 `;
 
-const downloader = 'http://localhost:8000';
+const downloader = '';
 
 class App extends Component {
   iconMap = {
