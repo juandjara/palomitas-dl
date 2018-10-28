@@ -22,7 +22,7 @@ services:
       - NODE_ENV=production
       - STORAGE_PATH=/home/node/storage
     volumes:
-      - ./server:/home/node/app
+      # - ./server:/home/node/app
       - ./storage:/home/node/storage
       - ./storage/torrents:/tmp/torrent-stream
     
