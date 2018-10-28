@@ -92,10 +92,11 @@ router.get('/torrents/:infoHash/files/:path([^"]+)', torrentMiddleware, (req, re
     return transformFn(req, res, torrent, file);
   }
 
-  if (!torrent.amInterested) {
-    console.log('[torrent api routes] redirecting to NGINX storage');  
-    return res.redirect(`/storage/${req.params.infoHash}/${req.params.path}`);
-  }
+  // TODO: disabled until header problem is fixed
+  // if (!torrent.amInterested) {
+  //   console.log('[torrent api routes] redirecting to NGINX storage');  
+  //   return res.redirect(`/storage/${req.params.infoHash}/${req.params.path}`);
+  // }
   
   res.type(file.name);
   req.connection.setTimeout(3600000);
