@@ -101,9 +101,9 @@ class App extends Component {
     this.socket.on('verifying', (hash, stats) => this.fetchSingleTorrent(hash, stats));
     this.socket.on('ready', (hash, stats) => this.fetchSingleTorrent(hash, stats));
     this.socket.on('stats', (hash, stats) => this.updateTorrent(hash, {stats}));
-    this.socket.on('download', (hash, progress) => this.updateTorrent(hash, {progress}));
-    this.socket.on('interested', (hash, progress) => this.updateTorrent(hash, {progress, interested: true}));
-    this.socket.on('uninterested', (hash, progress) => this.updateTorrent(hash, {progress, interested: false}));
+    this.socket.on('download', (hash, progress) => this.updateTorrent(hash, {progress: progress || []}));
+    this.socket.on('interested', (hash, progress) => this.updateTorrent(hash, {progress: progress || [], interested: true}));
+    this.socket.on('uninterested', (hash, progress) => this.updateTorrent(hash, {progress: progress || [], interested: false}));
     this.socket.on('selection', (hash, selection) => this.updateSelection(hash, selection));
     this.socket.on('destroyed', hash => this.cleanTorrent(hash));
   }
