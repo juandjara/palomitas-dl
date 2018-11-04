@@ -187,8 +187,7 @@ class App extends Component {
   }
 
   render() {
-    const hasError = true;
-    return hasError ? <RedScreenOfDeath /> : (
+    return this.state.hasError ? <RedScreenOfDeath /> : (
       <AppStyle>
         <Header>
           <h1>
