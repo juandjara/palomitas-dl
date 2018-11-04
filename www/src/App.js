@@ -10,13 +10,14 @@ import ProgressBar from './ProgressBar';
 import Stats from './Stats';
 import Form from './FormStyle';
 import Header from './HeaderStyle';
+import RedScreenOfDeath from './RedScreenOfDeath';
 
 const AppStyle = styled.div`
   margin: 0 auto;
   max-width: 768px;
 `;
 
-const downloader = '';
+const downloader = 'localhost:9000';
 
 class App extends Component {
   iconMap = {
@@ -27,11 +28,17 @@ class App extends Component {
   socket = null;
   state = {
     magnet: '',
-    torrents: []
+    torrents: [],
+    hasError: false
   } 
 
   componentDidMount() {
     this.fetch();
+  }
+
+  componentDidCatch(err, info) {
+    this.setState({ hasError: true });
+    console.error('UI Error catched: \n', err, info);
   }
 
   componentWillUnmount() {
@@ -180,7 +187,8 @@ class App extends Component {
   }
 
   render() {
-    return (
+    const hasError = true;
+    return hasError ? <RedScreenOfDeath /> : (
       <AppStyle>
         <Header>
           <h1>
