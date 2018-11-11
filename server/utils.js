@@ -1,3 +1,5 @@
+const mime = require('mime-types')
+
 function parseStats({swarm}) {
   return {
     totalPeers: swarm.wires.length,
@@ -52,6 +54,7 @@ function serializeTorrent(torrent) {
       const link = `/torrents/${torrent.infoHash}/files/${encodeURIComponent(f.path)}`;
       return {
         name: f.name,
+        mime: mime.lookup(f.name) || 'application/octet-stream',
         path: f.path,
         length: f.length,
         offset: f.offset,
