@@ -34,6 +34,9 @@ const TorrentCard = styled.div`
     border-bottom: 1px solid #ccc;
     li {
       padding: 8px 0;
+      a {
+        text-decoration: none;
+      }
     }
   }
   &.finished {
@@ -56,6 +59,11 @@ const TorrentCard = styled.div`
       > .material-icons {
         animation: 1s spin ease-in-out infinite;
       }
+    }
+  }
+  @media (max-width: 468px) {
+    header {
+      align-items: flex-end;
     }
   }
   @keyframes spin {

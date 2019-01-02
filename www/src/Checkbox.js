@@ -18,7 +18,7 @@ function Checkbox({onChange = () => {}, checked = false, label = ''}) {
 export default Checkbox;
 
 const Styled = styled.div`
-  display: inline-block;
+  display: flex;
   > input {
     opacity: 0;
     max-width: 0;

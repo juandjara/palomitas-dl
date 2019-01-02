@@ -17,7 +17,7 @@ const AppStyle = styled.div`
   max-width: 768px;
 `;
 
-const downloader = '';
+const downloader = 'https://palomitas-dl.fuken.xyz';
 
 class App extends Component {
   iconMap = {
@@ -202,7 +202,7 @@ class App extends Component {
         </Header>
         <main>
           <Form>
-            <h2>Torrent Streaming</h2>
+            <h2>Panel de control</h2>
             <div className="magnet-box">
               <img src={magnetIcon} alt="magnet icon" />
               <input type="url" 
@@ -214,9 +214,9 @@ class App extends Component {
               <Icon icon="file_download" />
               Descargar
             </button>
-            <p className="browse-label">
+            {/* <p className="browse-label">
               Suelta archivos .torrent aquí o examina tu equipo
-            </p>
+            </p> */}
           </Form>
           {this.state.torrents.map(torrent => (
             <TorrentCard key={torrent.infoHash} className={this.getTorrentClass(torrent)}>

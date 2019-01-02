@@ -6,7 +6,7 @@ const FormStyle = styled.form`
   border-radius: 4px;
   margin: 24px 0;
   h2 {
-    font-size: 32px;
+    font-size: 36px;
     text-align: center;
     font-weight: normal;
     margin-top: 16px;
