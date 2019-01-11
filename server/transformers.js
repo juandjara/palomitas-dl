@@ -40,35 +40,14 @@ module.exports.probe = (req, res, torrent, file) => {
 module.exports.remux = (req, res, torrent, file) => {
   res.type('video/webm');
   
-  let streamOpts;
-  const range = req.headers.range;
-  if (!range) {
-    const head = {
-      'Content-Length': file.length
-    };
-    res.writeHead(200, head);
-  } else {
-    const parts = range.replace(/bytes=/, '').split('-');
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] 
-      ? parseInt(parts[1], 10)
-      : file.length - 1;
-    const chunksize = (end - start) + 1;
-    const head = {
-      'Content-Range': `bytes ${start}-${end}/${file.length}`,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': chunksize
-    };
-    res.writeHead(206, head);
-    streamOpts = {start, end};
-  } 
-  
-  var command = ffmpeg(file.createReadStream(streamOpts))
+  var command = ffmpeg(file.createReadStream())
+  .seekInput(req.query.t || 0)
   .videoCodec('libvpx').audioCodec('libvorbis').format('webm')
   .audioBitrate(128)
   .videoBitrate(1024)
   .outputOptions([
-    //'-threads 2',
+    '-g 90',
+    '-keyint_min 90',
     '-deadline realtime',
     '-error-resilient 1'
   ])
