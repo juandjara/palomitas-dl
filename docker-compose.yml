@@ -3,14 +3,19 @@ services:
   www:
     container_name: palomitas-dl-www
     build: www
-    ports:
-      - 8000:80
+    labels:
+      - traefik.frontend.rule=Host:palomitas-dl.fuken.xyz
+      - traefik.port=80
+    networks:
+      - web
     volumes:
       - ./www:/usr/src/app
       - ./storage/torrents:/usr/share/nginx/html/storage
     links:
       - api
   api:
+    labels:
+      - traefik.enable=false
     container_name: palomitas-dl-api
     build: server
     restart: always
@@ -25,4 +30,7 @@ services:
       # - ./server:/home/node/app
       - ./storage:/home/node/storage
       - ./storage/torrents:/tmp/torrent-stream
-    
+
+networks:
+  web:
+    external: true
