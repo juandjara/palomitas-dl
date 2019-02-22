@@ -120,20 +120,21 @@ class App extends Component {
         this.updateTorrent(hash, torrent)
       } else {
         this.setState(prev => ({
-          torrents: prev.torrents.concat({...torrent, stats}).sort((a, b) => b.addDate - a.addDate)
+          torrents: prev.torrents.concat({...torrent, stats, progress: []}).sort((a, b) => b.addDate - a.addDate)
         }))
       }
     })
   }
 
   updateTorrent(hash, data) {
-    if (!data.progress) {
-      delete data.progress;
-    }
     this.setState(prev => ({
       torrents: prev.torrents.map(torrent => {
         return torrent.infoHash === hash ?
-          {...torrent, ...data} :
+          {
+            ...torrent,
+            ...data,
+            progress: data.progress || torrent.progress || []
+          } :
           torrent;
       })
     }))
