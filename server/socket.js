@@ -86,12 +86,10 @@ module.exports = {
 
     torrent.on('interested', () => {
       this.socketServer.sockets.emit('interested', torrent.infoHash, torrentProgress(torrent));
-      this.notifySelection(torrent);
     });
 
     torrent.on('uninterested', () => {
       this.socketServer.sockets.emit('uninterested', torrent.infoHash, torrentProgress(torrent));
-      this.notifySelection(torrent);
     });
 
     torrent.on('download', () => this.notifyProgress(torrent));
