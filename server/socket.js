@@ -18,41 +18,41 @@ module.exports = {
       if (torrent.torrent) {
         this.trackTorrentProgress(torrent);
       } else {
-        torrent.once('verifying', () => this.trackTorrentProgress(torrent));
+        torrent.once('ready', () => this.trackTorrentProgress(torrent));
       }
     });
   },
 
   setupClientSocket(socket) {
     this.numClients++;
-    console.log(`[torrent socket] Connected WS client. Total connected clients: ${this.numClients}`);
+    console.log(`[socket.js] Connected WS client. Total connected clients: ${this.numClients}`);
     socket.on('disconnect', () => {
       this.numClients--;
-      console.log(`[torrent socket] Disconnected WS client. Total connected clients: ${this.numClients}`);
+      console.log(`[socket.js] Disconnected WS client. Total connected clients: ${this.numClients}`);
     });
     socket.on('pause', (infoHash) => {
-      console.log(`[torrent socket] Pausing ${infoHash}`);
+      console.log(`[socket.js] Pausing ${infoHash}`);
       const torrent = store.get(infoHash);
       if (torrent && torrent.swarm) {
         torrent.swarm.pause();
       }
     });
     socket.on('resume', (infoHash) => {
-      console.log(`[torrent socket] Resuming ${infoHash}`);
+      console.log(`[socket.js] Resuming ${infoHash}`);
       const torrent = store.get(infoHash);
       if (torrent && torrent.swarm) {
         torrent.swarm.resume();
       }
     });
     socket.on('select', (infoHash, fileIndex) => {
-      console.log(`[torrent socket] Selected file ${fileIndex} for torrent ${infoHash}`);
+      console.log(`[socket.js] Selected file ${fileIndex} for torrent ${infoHash}`);
       var torrent = store.get(infoHash);
       if (torrent && torrent.files) {
         torrent.files[fileIndex].select();
       }
     });
     socket.on('deselect', (infoHash, fileIndex) => {
-      console.log(`[torrent socket] Deselected file ${fileIndex} for torrent ${infoHash}`);      
+      console.log(`[socket.js] Deselected file ${fileIndex} for torrent ${infoHash}`);      
       var torrent = store.get(infoHash);
       if (torrent && torrent.files) {
         torrent.files[fileIndex].deselect();
@@ -60,11 +60,11 @@ module.exports = {
     });
   },
 
-  notifyProgress: throttle(function(torrent) {
+  notifyProgress: throttle(function _notifyProgress(torrent) {
     this.socketServer.sockets.emit('download', torrent.infoHash, torrentProgress(torrent.bitfield.buffer));
   }, 1000),
 
-  notifySelection: throttle(function(torrent) {
+  notifySelection: throttle(function _notifySelection(torrent) {
     const pieceLength = torrent.torrent.pieceLength;
     const selection = torrent.files.map(file => {
       const start = file.offset / pieceLength | 0;
@@ -77,16 +77,12 @@ module.exports = {
   trackTorrentProgress(torrent) {
     this.sendNotificationToTelegram(torrent);
 
-    this.socketServer.sockets.emit('verifying', torrent.infoHash, parseStats(torrent));
+    this.socketServer.sockets.emit('ready', torrent.infoHash, parseStats(torrent));
     
     this.torrentStatsInterval = setInterval(() => {
       this.socketServer.sockets.emit('stats', torrent.infoHash, parseStats(torrent));
       this.notifySelection(torrent);
     }, 1000);
-
-    torrent.once('ready', () => {
-      this.socketServer.sockets.emit('ready', torrent.infoHash, parseStats(torrent));
-    });
 
     torrent.on('interested', () => {
       this.socketServer.sockets.emit('interested', torrent.infoHash, torrentProgress(torrent));
@@ -98,7 +94,7 @@ module.exports = {
       this.notifySelection(torrent);
     });
 
-    torrent.on('verify', () => this.notifyProgress(torrent));
+    torrent.on('download', () => this.notifyProgress(torrent));
 
     torrent.on('finished', () => {
       clearInterval(this.torrentStatsInterval);
@@ -116,10 +112,10 @@ module.exports = {
   sendNotificationToTelegram(torrent) {
     const {BOT_TOKEN, TG_CHANNEL} = process.env;
     if (!BOT_TOKEN || !TG_CHANNEL) {
-      console.log('[torrent socket] missing Telegram configuration. Aborting Telegram message send');
+      console.log('[socket.js] missing Telegram configuration. Aborting Telegram message send');
       return;
     }
-    const filename = torrent.torrent && torrent.torrent.name;
+    const filename = torrent.torrent ? torrent.torrent.name : torrent.name;
     const msg = `New torrent added: \n${filename}`;
     const path = `/bot${encodeURIComponent(BOT_TOKEN)}/sendMessage?chat_id=${TG_CHANNEL}&text=${encodeURIComponent(msg)}`;
     return new Promise((resolve, reject) => {

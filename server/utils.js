@@ -37,16 +37,21 @@ function torrentProgress(buffer) {
 }
 
 function serializeTorrent(torrent) {
-  if (!torrent.torrent) {
-    return { infoHash: torrent.infoHash };
+  const ready = !!torrent.torrent;
+  if (!ready) {
+    return {
+      name: torrent.name,
+      addDate: torrent.addDate,
+      infoHash: torrent.infoHash
+    };
   }
   const pieceLength = torrent.torrent.pieceLength;
 
   return {
+    ready,
     infoHash: torrent.infoHash,
     name: torrent.torrent.name,
     interested: torrent.amInterested,
-    ready: torrent.ready,
     addDate: torrent.addDate,
     files: torrent.files.map(f => {
       const start = f.offset / pieceLength | 0;

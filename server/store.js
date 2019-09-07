@@ -18,24 +18,25 @@ class Store extends EventEmitter {
   }
 
   loadTorrent(input) {
-    const {infoHash} = parseTorrent(input);
+    const {infoHash, dn} = parseTorrent(input);
     if (this.torrents[infoHash]) {
       return Promise.resolve(infoHash);
     }
-    console.log(`[torrent store] adding ${infoHash}`);
+    console.log(`[store.js] adding ${infoHash}`);
 
     try {
-      this._loadData({ infoHash, addDate: Date.now() });
+      this._loadData({ name: dn, infoHash, addDate: Date.now() });
       return this.updateStorage().then(() => infoHash);
     } catch (err) {
       return Promise.reject(err);
     }
   }
 
-  _loadData({infoHash, addDate}) {
-    console.log(`[torrent store] loading hash ${infoHash}`);
+  _loadData({name, infoHash, addDate}) {
+    console.log(`[store.js] loading hash ${infoHash}`);
     const torrent = engine({infoHash});
     torrent.addDate = addDate;
+    torrent.name = name;
     this.emit('torrent', infoHash, torrent);
     this.torrents[infoHash] = torrent;
   }
@@ -63,15 +64,15 @@ class Store extends EventEmitter {
 
   init() {
     return this.readStorage().then(torrents => {
-      console.log('[torrent store] resuming from previous state');
+      console.log('[store.js] resuming from previous state');
       torrents.forEach(torrent => {
         this._loadData(torrent);
       });
     }).catch(err => {
       if (err.code === 'ENOENT') {
-        console.log('[torrent store] previous state not found');
+        console.log('[store.js] previous state not found');
       } else {
-        console.error(`[torrent store] error reading storage ${err}`);
+        console.error(`[store.js] error reading storage ${err}`);
         return Promise.reject(err);
       }
     });
@@ -79,7 +80,7 @@ class Store extends EventEmitter {
 
   clean(signal) {
     if (signal) {
-      console.log(`[torrent store] Received signal ${signal}. Cleaning torrent store`);
+      console.log(`\n[store.js] Received signal ${signal}. Cleaning torrent store`);
     }
     Object.keys(this.torrents).forEach(key => {
       const torrent = this.torrents[key];
@@ -103,7 +104,7 @@ class Store extends EventEmitter {
     }));
     return writeFile(this.storageFilePath, JSON.stringify(torrents))
     .then(() => {
-      console.log('[torrent store] state saved');
+      console.log('[store.js] state saved');
     }).catch((err) => {
       throw err;
     });

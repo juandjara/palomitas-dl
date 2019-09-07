@@ -17,7 +17,8 @@ const AppStyle = styled.div`
   max-width: 768px;
 `;
 
-const downloader = 'https://palomitas-dl.fuken.xyz';
+const downloader = process.env.NODE_ENV !== 'production' ? 
+  'http://localhost:9000' : 'https://palomitas-dl.fuken.xyz';
 
 class App extends Component {
   iconMap = {
@@ -56,7 +57,8 @@ class App extends Component {
     .then(torrents => {
       this.setState({
         torrents: torrents.map(torrent => {
-          torrent.stats = {};
+          torrent.stats = torrent.stats || {};
+          torrent.files = torrent.files || [];
           return torrent;
         }).sort((a, b) => b.addDate - a.addDate)
       }, () => this.setupSocket());
@@ -95,10 +97,7 @@ class App extends Component {
 
   setupSocket() {
     this.socket = socketIO(`${downloader}/`);
-    this.socket.on('connect', () => {
-      console.log('Connected to Palomitas DL WebSocket');
-    });
-    this.socket.on('verifying', (hash, stats) => this.fetchSingleTorrent(hash, stats));
+    this.socket.on('connect', () => console.log('Connected to Palomitas DL WebSocket'));
     this.socket.on('ready', (hash, stats) => this.fetchSingleTorrent(hash, stats));
     this.socket.on('stats', (hash, stats) => this.updateTorrent(hash, {stats}));
     this.socket.on('download', (hash, progress) => this.updateTorrent(hash, {progress}));

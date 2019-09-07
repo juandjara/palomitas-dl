@@ -23,7 +23,7 @@ router.post('/torrents', (req, res, next) => {
   const magnet = req.body.link;
   store.loadTorrent(magnet)
   .then(infoHash => {
-    res.json({infoHash});
+    res.json(serializeTorrent(store.get(infoHash)));
   }).catch(err => { next(err); });
 });
 

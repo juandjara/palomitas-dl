@@ -3,59 +3,48 @@ const BITTORRENT_PORT = 6881;
 
 function createTorrentStream(input, opts) {
   const torrent = torrentStream(input, opts);
-  torrent.once('verifying', () => {
-    const totalPieces = torrent.torrent.pieces.length;
-    let verifiedPieces = 0;
 
-    console.log(`[torrent engine] verifying ${torrent.infoHash} \n\nFILES: `);
+  torrent.on('ready', () => {
+    console.log(`[engine.js] ready ${torrent.infoHash} with files: `);
     torrent.files.forEach((file, i) => {
-      console.log(`${i}. ${file.name}`);
+      console.log(`\t ${i}. ${file.name}`);
     });
     console.log('');
-
-    torrent.on('verify', () => {
-      if (++verifiedPieces === totalPieces) {
-        torrent.emit('finished');
-        console.log(`[torrent engine] finished downloading ${torrent.infoHash}`);
-      }
-    });
   });
 
-  torrent.once('ready', () => {
-    console.log('[torrent engine] ready ' + torrent.infoHash);
-    torrent.ready = true;
-
-    // select the largest file and start downloading it
-    // TODO: maybe we should disable this and start downloading when the file is streamed
-    const file = torrent.files.reduce((a, b) => (
-      a.length > b.length ? a : b
-    ));
-    file.select();
-  });
+  // uncommenting the code below will
+  // select the largest file and start downloading it whenever a new torrent is loaded in the app
+  // torrent.once('ready', () => {
+  //   const biggestFile = torrent.files.reduce((a, b) => (
+  //     a.length > b.length ? a : b
+  //   ));
+  //   biggestFile.select();
+  // });
 
   torrent.on('uninterested', () => {
-    console.log('[torrent engine] uninterested ' + torrent.infoHash);
+    console.log('[engine.js] uninterested ' + torrent.infoHash);
   });
 
   torrent.on('interested', () => {
-    console.log('[torrent engine] interested ' + torrent.infoHash);
+    console.log('[engine.js] interested ' + torrent.infoHash);
   });
 
   torrent.on('idle', () => {
-    console.log('[torrent engine] idle ' + torrent.infoHash);
-  });
-
-  torrent.on('error', (err) => {
-    console.log('[torrent engine] error ' + torrent.infoHash + ': ' + err);
+    torrent.emit('finished');
+    console.log(`[engine.js] finished downloading ${torrent.infoHash}`);
   });
 
   torrent.once('destroyed', () => {
-    console.log('[torrent engine] destroyed ' + torrent.infoHash);
+    console.log('[engine.js] destroyed ' + torrent.infoHash);
     torrent.removeAllListeners();
   });
 
+  torrent.on('error', (err) => {
+    console.error('[engine.js] ERROR ' + torrent.infoHash + ': \n' + err);
+  });
+
   torrent.listen(BITTORRENT_PORT, () => {
-    console.log('[torrent engine] listening ' + torrent.infoHash + ' on BT port ' + torrentStream.port);
+    console.log('[engine.js] listening ' + torrent.infoHash + ' on BT port ' + BITTORRENT_PORT);
   });
 
   return torrent;
