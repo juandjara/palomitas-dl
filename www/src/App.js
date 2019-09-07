@@ -65,14 +65,29 @@ class App extends Component {
     });
   }
 
-  addTorrent(ev) {
+  fetchSingleTorrent(hash, stats) {
+    fetch(`${downloader}/torrents/${hash}`)
+    .then(res => res.json())
+    .then(torrent => {
+      if (this.isTorrentInState(torrent.infoHash)) {
+        this.updateTorrent(hash, torrent)
+      } else {
+        this.addTorrent({ ...torrent, stats })
+      }
+    })
+  }
+
+  postTorrent(ev) {
     ev.preventDefault();
     fetch(`${downloader}/torrents`, {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ link: this.state.magnet })
-    }).then(() => {
+    })
+    .then(res => res.json())
+    .then(torrent => {
       this.setState({magnet: ''})
+      this.addTorrent(torrent)
     })
   }
 
@@ -111,18 +126,17 @@ class App extends Component {
     return this.state.torrents.some(torrent => torrent.infoHash === hash);
   }
 
-  fetchSingleTorrent(hash, stats) {
-    fetch(`${downloader}/torrents/${hash}`)
-    .then(res => res.json())
-    .then(torrent => {
-      if (this.isTorrentInState(torrent.infoHash)) {
-        this.updateTorrent(hash, torrent)
-      } else {
-        this.setState(prev => ({
-          torrents: prev.torrents.concat({...torrent, stats, progress: []}).sort((a, b) => b.addDate - a.addDate)
-        }))
-      }
-    })
+  addTorrent(torrent) {
+    torrent = {
+      ...torrent,
+      stats: torrent.stats || {},
+      progress: torrent.progress || [],
+      files: torrent.files || []
+    }
+    this.setState(prev => ({
+      torrents: prev.torrents.concat(torrent)
+        .sort((a, b) => b.addDate - a.addDate)
+    }))
   }
 
   updateTorrent(hash, data) {
@@ -213,7 +227,7 @@ class App extends Component {
                 onChange={ev => this.setState({magnet: ev.target.value})}
                 placeholder="Introduzca el magnet link aqui" />
             </div>
-            <button onClick={ev => this.addTorrent(ev)}>
+            <button onClick={ev => this.postTorrent(ev)}>
               <Icon icon="file_download" />
               Descargar
             </button>
