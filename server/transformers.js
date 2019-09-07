@@ -38,17 +38,16 @@ module.exports.probe = (req, res, torrent, file) => {
 };
 
 module.exports.remux = (req, res, torrent, file) => {
-  res.type('video/mp4');
+  res.type('video/webm');
   
   var command = ffmpeg(file.createReadStream())
   .seekInput(req.query.t || 0)
-  .videoCodec('libx264')
-  .audioCodec('aac')
-  .format('mp4')
+  .videoCodec('libvpx')
+  .audioCodec('libvorbis')
+  .format('webm')
   // .audioBitrate(128)
   // .videoBitrate(1024)
   .outputOptions([
-    '-movflags frag_keyframe+empty_moov+default_base_moof',
     '-g 90',
     '-keyint_min 90',
     '-deadline realtime',
