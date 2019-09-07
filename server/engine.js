@@ -14,12 +14,12 @@ function createTorrentStream(input, opts) {
 
   // uncommenting the code below will
   // select the largest file and start downloading it whenever a new torrent is loaded in the app
-  // torrent.once('ready', () => {
-  //   const biggestFile = torrent.files.reduce((a, b) => (
-  //     a.length > b.length ? a : b
-  //   ));
-  //   biggestFile.select();
-  // });
+  torrent.once('ready', () => {
+    const biggestFile = torrent.files.reduce((a, b) => (
+      a.length > b.length ? a : b
+    ));
+    biggestFile.select();
+  });
 
   torrent.on('uninterested', () => {
     console.log('[engine.js] uninterested ' + torrent.infoHash);
