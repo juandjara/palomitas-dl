@@ -15,6 +15,19 @@ import RedScreenOfDeath from './RedScreenOfDeath';
 const AppStyle = styled.div`
   margin: 0 auto;
   max-width: 768px;
+
+  .api-error {
+    text-align: center;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: .75rem 1.25rem;
+    border-radius: .25rem;
+  }
+  .loading {
+    text-align: center;
+    padding: .75rem 1.25rem;
+  }
 `;
 
 const downloader = process.env.NODE_ENV !== 'production' ? 
@@ -30,11 +43,17 @@ class App extends Component {
   state = {
     magnet: '',
     torrents: [],
-    hasError: false
+    hasError: false,
+    apiHasError: false,
+    loading: true
   } 
 
   componentDidMount() {
-    this.fetch();
+    this.fetch()
+      .catch(err => {
+        console.error('API Error', err)
+        this.setState({ loading: false, apiHasError: true })
+      })
   }
 
   componentDidCatch(err, info) {
@@ -52,10 +71,11 @@ class App extends Component {
   }
 
   fetch() {
-    fetch(`${downloader}/torrents`)
+    return fetch(`${downloader}/torrents`)
     .then(res => res.json())
     .then(torrents => {
       this.setState({
+        loading: false,
         torrents: torrents.map(torrent => {
           torrent.stats = torrent.stats || {};
           torrent.files = torrent.files || [];
@@ -218,7 +238,7 @@ class App extends Component {
           </nav>
         </Header>
         <main>
-          <Form>
+          <Form disabled={this.state.apiHasError}>
             <h2>Panel de control</h2>
             <div className="magnet-box">
               <img src={magnetIcon} alt="magnet icon" />
@@ -235,6 +255,15 @@ class App extends Component {
               Suelta archivos .torrent aquí o examina tu equipo
             </p> */}
           </Form>
+          {this.state.loading && (
+            <p className="loading">Cargando ...</p>
+          )}
+          {this.state.apiHasError && (
+            <p className="api-error">
+              <Icon size={16} style={{ verticalAlign: 'sub', marginRight: 4 }} icon="error_outline" />
+              <span>Servidor caido</span>
+            </p>
+          )}
           {this.state.torrents.map(torrent => (
             <TorrentCard key={torrent.infoHash} className={this.getTorrentClass(torrent)}>
               <header>
@@ -258,7 +287,7 @@ class App extends Component {
                       onChange={checked => this.toggleFileSelection(torrent, file, checked)}
                       checked={file.selected}
                       label={
-                        <a href={file.link}>{file.name} ({this.formatSize(file.length)})</a>
+                        <a href={`${downloader}${file.link}`}>{file.name} ({this.formatSize(file.length)})</a>
                       } />
                   </li>
                 ))}

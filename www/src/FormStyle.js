@@ -5,6 +5,10 @@ const FormStyle = styled.form`
   background: rgba(255,255,255, 0.2);
   border-radius: 4px;
   margin: 24px 0;
+  ${props => props.disabled ? `
+    opacity: 0.5;
+    pointer-events: none;
+  ` : ''}
   h2 {
     font-size: 36px;
     text-align: center;
