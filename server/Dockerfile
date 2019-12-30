@@ -1,6 +1,6 @@
 FROM node:10-alpine
 
-RUN apk --no-cache add ffmpeg git
+RUN apk --no-cache add ffmpeg git python make gcc g++
 WORKDIR /home/node/app
 
 ENV PATH /home/node/app/node_modules/.bin:$PATH
