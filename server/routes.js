@@ -30,7 +30,7 @@ router.post('/torrents', async (req, res, next) => {
   }
 
   try {
-    const infoHash = store.loadTorrent(magnet);
+    const infoHash = await store.loadTorrent(magnet);
     res.json(serializeTorrent(store.get(infoHash)));
   } catch (err) {
     next(err);
