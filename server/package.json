@@ -16,6 +16,7 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
+    "diskusage": "^1.1.3",
     "event-stream": "^3.3.4",
     "express": "^4.16.4",
     "fluent-ffmpeg": "^2.1.2",

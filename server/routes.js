@@ -3,6 +3,7 @@ const {serializeTorrent, parseStats} = require('./utils');
 const store = require('./store');
 const pump = require('pump');
 const transformers = require('./transformers');
+const du = require('diskusage');
 
 function torrentMiddleware(req, res, next) {
   const hash = req.params.infoHash;
@@ -19,12 +20,21 @@ router.get('/torrents', (req, res) => {
   return res.json(torrents);
 });
 
-router.post('/torrents', (req, res, next) => {
+const MIN_SPACE = 2 * 1024 * 1024 * 1024; // 2GB
+router.post('/torrents', async (req, res, next) => {
   const magnet = req.body.link;
-  store.loadTorrent(magnet)
-  .then(infoHash => {
+  const diskinfo = await du.check('/');
+  if (diskinfo.available < MIN_SPACE) {
+    res.status(500).json({ error: 'Space available on disk is below 2GB. Please free some space before adding more torrents' });
+    return;
+  }
+
+  try {
+    const infoHash = store.loadTorrent(magnet);
     res.json(serializeTorrent(store.get(infoHash)));
-  }).catch(err => { next(err); });
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.get('/torrents/:infoHash', torrentMiddleware, (req, res) => {
