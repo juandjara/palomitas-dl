@@ -12,8 +12,6 @@ function createTorrentStream(input, opts) {
     console.log('');
   });
 
-  // uncommenting the code below will
-  // select the largest file and start downloading it whenever a new torrent is loaded in the app
   torrent.once('ready', () => {
     const biggestFile = torrent.files.reduce((a, b) => (
       a.length > b.length ? a : b
