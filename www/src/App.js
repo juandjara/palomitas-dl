@@ -24,14 +24,32 @@ const AppStyle = styled.div`
     padding: .75rem 1.25rem;
     border-radius: .25rem;
   }
-  .loading {
+  .loading, .no-data {
     text-align: center;
     padding: .75rem 1.25rem;
+    font-size: 24px;
+    margin-bottom: 1.5rem;
+  }
+
+  .remove-all-btn {
+    margin-bottom: 1rem;
+    font-size: 14px;
+    line-height: 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: white;
+    padding: 4px 12px;
+    cursor: pointer;
+    
+    &:hover {
+      background-color: #f2f2f4;
+    }
   }
 `;
 
-const downloader = process.env.NODE_ENV !== 'production' ? 
-  'http://localhost:9000' : 'https://palomitas-dl.fuken.xyz';
+// const downloader = process.env.NODE_ENV !== 'production' ? 
+//   'http://localhost:9000' : 'https://palomitas-dl.fuken.xyz';
+const downloader = 'https://palomitas-dl.fuken.xyz';
 
 class App extends Component {
   iconMap = {
@@ -111,8 +129,10 @@ class App extends Component {
     })
   }
 
-  removeTorrent(hash) {
-    const safe = window.confirm('¿Esta seguro de que desea borrar este torrent?');
+  removeTorrent(hash, useDialog = true) {
+    const safe = useDialog 
+      ? window.confirm('¿Esta seguro de que desea borrar este torrent?')
+      : true;
     if (!safe) {
       return;
     }
@@ -122,6 +142,15 @@ class App extends Component {
     ).then(() => {
       this.cleanTorrent(hash);
     })    
+  }
+
+  removeAll () {
+    const num = this.state.torrents.length
+    const confirmation = window.confirm(`¿Esta seguro de que quiere borrar ${num} torrent${num === 1 ? '' : 's'}?`)
+    if (!confirmation) {
+      return;
+    }
+    this.state.torrents.forEach(t => this.removeTorrent(t.infoHash, false))
   }
 
   cleanTorrent(hash) {
@@ -224,6 +253,7 @@ class App extends Component {
   }
 
   render() {
+    const noData = !this.state.apiHasError && !this.state.loading && !this.state.torrents.length
     return this.state.hasError ? <RedScreenOfDeath /> : (
       <AppStyle>
         <Header>
@@ -256,13 +286,18 @@ class App extends Component {
             </p> */}
           </Form>
           {this.state.loading && (
-            <p className="loading">Cargando ...</p>
+            <p className="loading">Cargando ...</p> 
           )}
           {this.state.apiHasError && (
             <p className="api-error">
               <Icon size={16} style={{ verticalAlign: 'sub', marginRight: 4 }} icon="error_outline" />
               <span>Servidor caido</span>
             </p>
+          )}
+          {noData ? (
+            <p className="no-data">No hay ningun torrent en la lista</p>
+          ) : (
+            <button className="remove-all-btn" onClick={() => this.removeAll()}>Eliminar todos</button>
           )}
           {this.state.torrents.map(torrent => (
             <TorrentCard key={torrent.infoHash} className={this.getTorrentClass(torrent)}>
