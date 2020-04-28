@@ -48,6 +48,11 @@ module.exports.remux = (req, res, torrent, file) => {
   // .audioBitrate(128)
   // .videoBitrate(1024)
   .outputOptions([
+    '-pix_fmt yuv420p',
+    '-color_primaries 1',
+    '-color_trc 1',
+    '-colorspace 1',
+    '-movflags +faststart',
     '-g 90',
     '-keyint_min 90',
     '-deadline realtime',
