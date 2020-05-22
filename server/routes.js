@@ -5,6 +5,8 @@ const pump = require('pump');
 const transformers = require('./transformers');
 const du = require('diskusage');
 
+const MIN_SPACE = 2 * 1024 * 1024 * 1024; // 2GB
+
 function torrentMiddleware(req, res, next) {
   const hash = req.params.infoHash;
   req.torrent = store.get(hash);
@@ -20,7 +22,6 @@ router.get('/torrents', (req, res) => {
   return res.json(torrents);
 });
 
-const MIN_SPACE = 2 * 1024 * 1024 * 1024; // 2GB
 router.post('/torrents', async (req, res, next) => {
   const magnet = req.body.link;
   const diskinfo = await du.check('/');
